@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhaopinDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zhaopin_name as zhaopinName
+        ,a.zhaopin_photo as zhaopinPhoto
+        ,a.zhaopin_daiyu as zhaopinDaiyu
+        ,a.zhaopin_address as zhaopinAddress
+        ,a.lianxiren_name as lianxirenName
+        ,a.zhaopin_phone as zhaopinPhone
+        ,a.zhaopin_types as zhaopinTypes
+        ,a.zhaopin_renshu_number as zhaopinRenshuNumber
+        ,a.zhaopin_content as zhaopinContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhaopinView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM zhaopin  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.zhaopinName != '' and params.zhaopinName != null and params.zhaopinName != 'null' ">
+                and a.zhaopin_name like CONCAT('%',#{params.zhaopinName},'%')
+            </if>
+            <if test=" params.zhaopinDaiyu != '' and params.zhaopinDaiyu != null and params.zhaopinDaiyu != 'null' ">
+                and a.zhaopin_daiyu like CONCAT('%',#{params.zhaopinDaiyu},'%')
+            </if>
+            <if test=" params.zhaopinAddress != '' and params.zhaopinAddress != null and params.zhaopinAddress != 'null' ">
+                and a.zhaopin_address like CONCAT('%',#{params.zhaopinAddress},'%')
+            </if>
+            <if test=" params.lianxirenName != '' and params.lianxirenName != null and params.lianxirenName != 'null' ">
+                and a.lianxiren_name like CONCAT('%',#{params.lianxirenName},'%')
+            </if>
+            <if test=" params.zhaopinPhone != '' and params.zhaopinPhone != null and params.zhaopinPhone != 'null' ">
+                and a.zhaopin_phone like CONCAT('%',#{params.zhaopinPhone},'%')
+            </if>
+            <if test="params.zhaopinTypes != null and params.zhaopinTypes != ''">
+                and a.zhaopin_types = #{params.zhaopinTypes}
+            </if>
+            <if test="params.zhaopinRenshuNumberStart != null and params.zhaopinRenshuNumberStart != ''">
+                <![CDATA[  and a.zhaopin_renshu_number >= #{params.zhaopinRenshuNumberStart}   ]]>
+            </if>
+            <if test="params.zhaopinRenshuNumberEnd != null and params.zhaopinRenshuNumberEnd != ''">
+                <![CDATA[  and a.zhaopin_renshu_number <= #{params.zhaopinRenshuNumberEnd}   ]]>
+            </if>
+             <if test="params.zhaopinRenshuNumber != null and params.zhaopinRenshuNumber != ''">
+                and a.zhaopin_renshu_number = #{params.zhaopinRenshuNumber}
+             </if>
+            <if test=" params.zhaopinContent != '' and params.zhaopinContent != null and params.zhaopinContent != 'null' ">
+                and a.zhaopin_content like CONCAT('%',#{params.zhaopinContent},'%')
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

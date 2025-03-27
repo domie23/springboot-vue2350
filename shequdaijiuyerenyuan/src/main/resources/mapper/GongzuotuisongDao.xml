@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.GongzuotuisongDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.gongzuorenyuan_id as gongzuorenyuanId
+        ,a.yonghu_id as yonghuId
+        ,a.gongzuotuisong_name as gongzuotuisongName
+        ,a.gongzuotuisong_types as gongzuotuisongTypes
+        ,a.insert_time as insertTime
+        ,a.gongzuotuisong_content as gongzuotuisongContent
+        ,a.gongzuotuisong_delete as gongzuotuisongDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.GongzuotuisongView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,gongzuorenyuan.gongzuorenyuan_name as gongzuorenyuanName
+        ,gongzuorenyuan.gongzuorenyuan_phone as gongzuorenyuanPhone
+        ,gongzuorenyuan.gongzuorenyuan_email as gongzuorenyuanEmail
+        ,gongzuorenyuan.gongzuorenyuan_delete as gongzuorenyuanDelete
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.jiuye_types as jiuyeTypes
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM gongzuotuisong  a
+        left JOIN gongzuorenyuan gongzuorenyuan ON a.gongzuorenyuan_id = gongzuorenyuan.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.gongzuorenyuanId != null and params.gongzuorenyuanId != ''">
+                and (
+                    a.gongzuorenyuan_id = #{params.gongzuorenyuanId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test=" params.gongzuotuisongName != '' and params.gongzuotuisongName != null and params.gongzuotuisongName != 'null' ">
+                and a.gongzuotuisong_name like CONCAT('%',#{params.gongzuotuisongName},'%')
+            </if>
+            <if test="params.gongzuotuisongTypes != null and params.gongzuotuisongTypes != ''">
+                and a.gongzuotuisong_types = #{params.gongzuotuisongTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.gongzuotuisongContent != '' and params.gongzuotuisongContent != null and params.gongzuotuisongContent != 'null' ">
+                and a.gongzuotuisong_content like CONCAT('%',#{params.gongzuotuisongContent},'%')
+            </if>
+            <if test="params.gongzuotuisongDeleteStart != null and params.gongzuotuisongDeleteStart != ''">
+                <![CDATA[  and a.gongzuotuisong_delete >= #{params.gongzuotuisongDeleteStart}   ]]>
+            </if>
+            <if test="params.gongzuotuisongDeleteEnd != null and params.gongzuotuisongDeleteEnd != ''">
+                <![CDATA[  and a.gongzuotuisong_delete <= #{params.gongzuotuisongDeleteEnd}   ]]>
+            </if>
+             <if test="params.gongzuotuisongDelete != null and params.gongzuotuisongDelete != ''">
+                and a.gongzuotuisong_delete = #{params.gongzuotuisongDelete}
+             </if>
+
+                <!-- 判断社区工作人员的id不为空 -->
+            <if test=" params.gongzuorenyuanIdNotNull != '' and params.gongzuorenyuanIdNotNull != null and params.gongzuorenyuanIdNotNull != 'null' ">
+                and a.gongzuorenyuan_id IS NOT NULL
+            </if>
+            <if test=" params.gongzuorenyuanName != '' and params.gongzuorenyuanName != null and params.gongzuorenyuanName != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_name like CONCAT('%',#{params.gongzuorenyuanName},'%')
+            </if>
+            <if test=" params.gongzuorenyuanPhone != '' and params.gongzuorenyuanPhone != null and params.gongzuorenyuanPhone != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_phone like CONCAT('%',#{params.gongzuorenyuanPhone},'%')
+            </if>
+            <if test=" params.gongzuorenyuanEmail != '' and params.gongzuorenyuanEmail != null and params.gongzuorenyuanEmail != 'null' ">
+                and gongzuorenyuan.gongzuorenyuan_email like CONCAT('%',#{params.gongzuorenyuanEmail},'%')
+            </if>
+            <if test="params.gongzuorenyuanDeleteStart != null  and params.gongzuorenyuanDeleteStart != '' ">
+                <![CDATA[  and gongzuorenyuan.gongzuorenyuan_delete >= #{params.gongzuorenyuanDeleteStart}   ]]>
+            </if>
+            <if test="params.gongzuorenyuanDeleteEnd != null  and params.gongzuorenyuanDeleteEnd != '' ">
+                <![CDATA[  and gongzuorenyuan.gongzuorenyuan_delete <= #{params.gongzuorenyuanDeleteEnd}   ]]>
+            </if>
+            <if test="params.gongzuorenyuanDelete != null  and params.gongzuorenyuanDelete != '' ">
+                and gongzuorenyuan.gongzuorenyuan_delete = #{params.gongzuorenyuanDelete}
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.jiuyeTypes != null  and params.jiuyeTypes != ''">
+                and yonghu.jiuye_types = #{params.jiuyeTypes}
+            </if>
+
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
